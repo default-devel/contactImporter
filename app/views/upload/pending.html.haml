@@ -1,0 +1,25 @@
+.col
+  %table.table.table-hover.table-responsive.table-pagination
+    %thead
+      %tr
+        %th Name
+        %th email
+        %th phone
+        %th date_of_birth
+        %th address
+        %th franchise
+        %th credit_card
+        %th Messages
+    %tbody
+      - @pendings.each do |contact|
+        %tr
+          %td= contact.name ? contact.name : ''
+          %td= contact.email ? contact.email : ''
+          %td= contact.phone ? contact.phone : ''
+          %td= contact.date_of_birth ? contact.date_of_birth.strftime('%Y %B %d') : ''
+          %td= contact.address ? contact.address : ''
+          %td= contact.franchise ? contact.franchise : ''
+          %td= contact.last_digits ? contact.last_digits.to_s : ''
+          %td
+            - contact.err_list.each do |err|
+              %p= err

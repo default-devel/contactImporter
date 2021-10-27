@@ -1,0 +1,65 @@
+!!!
+%html.h-100{lang:'en'}
+  %head
+    %meta{:content => "text/html; charset=UTF-8", "http-equiv" => "Content-Type"}/
+    %title Contact Importer
+    %meta{:content => "width=device-width,initial-scale=1", :name => "viewport"}/
+
+    - # Libaries added to speed up development
+    %script{:crossorigin => "anonymous", :integrity => "sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=", :src => "https://code.jquery.com/jquery-3.6.0.min.js"}
+    %script{:crossorigin => "anonymous", :integrity => "sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU=", :src => "https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"}
+    %script{:crossorigin => "anonymous", :integrity => "sha512-Y8iWYJDo6HiTo5xtml1g4QqHtl/PO1w+dmUpQfQSOTqKNsMhExfyPN2ncNAe9JuJUSKzwK/b6oaNPop4MXzkwg==", :referrerpolicy => "no-referrer", :src => "https://cdnjs.cloudflare.com/ajax/libs/jquery-csv/1.0.21/jquery.csv.min.js"}
+    %link{rel: "stylesheet", href: "https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css", integrity: "sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3", crossorigin: "anonymous"}
+    %script{src: "https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js", integrity: "sha384-QJHtvGhmr9XOIpI6YVutG+2QOK9T+ZnN4kzFN1RtK3zEFEIsxhlmWl5/YESvpZ13", crossorigin: "anonymous"}
+    %link{rel: "stylesheet", href: "https://cdn.datatables.net/1.11.3/css/dataTables.bootstrap5.min.css"}
+    %script{src: "https://cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js"}
+    %script{src: "https://cdn.datatables.net/1.11.3/js/dataTables.bootstrap5.min.js"}
+
+    = csrf_meta_tags
+    = csp_meta_tag
+    = stylesheet_link_tag 'application', media: 'all', 'data-turbolinks-track': 'reload'
+    = javascript_pack_tag 'application', 'data-turbolinks-track': 'reload', defer: true
+    
+    - # F.A. cause fast icons
+    %script{:crossorigin => "anonymous", :src => "https://kit.fontawesome.com/9daeafa481.js"}
+  %body.h-100
+    - if current_user
+      = render 'common/header'
+      .container-fluid
+        .row.pt-2
+          .col
+            .card
+              .card-body.p-0
+                .row.h-100
+                  .col-2.h-100
+                    %ul.list-group.list-group-flush.ms-2.mt-2
+                      - if current_user.contacts.any?
+                        %li.list-group-item.d-flex.justify-content-between.align-items-start
+                          %a.nav-link.ms-2.me-auto{href:root_path}
+                            Contacts
+                      - if current_user.pending_contacts_count > 0
+                        %li.list-group-item.d-flex.justify-content-between.align-items-start
+                          %a.nav-link.ms-2.me-auto{href:upload_pending_path}
+                            Pending Contacts
+                            .badge.bg-warning.rounded-pill
+                              = current_user.pending_contacts_count
+                      - if current_user.uploads.any?
+                        %li.list-group-item.d-flex.justify-content-between.align-items-start
+                          %a.nav-link.ms-2.me-auto{href:upload_list_path}
+                            Uploads
+                            - if current_user.pending_uploads_count > 0
+                              .badge.bg-warning.rounded-pill
+                                = current_user.pending_uploads_count
+                      %li.list-group-item.d-flex.justify-content-between.align-items-start
+                        %a.nav-link.ms-2.me-auto{href:upload_new_path}
+                          Import  
+                  .col.content-block
+                    .row.m-3
+                      = yield
+    - else
+      = yield
+    :javascript
+      if($('.table-pagination')){
+        $('.table-pagination').DataTable();
+      }
+      

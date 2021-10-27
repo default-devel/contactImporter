@@ -1,0 +1,2 @@
+module Contact::UploadHelper
+end

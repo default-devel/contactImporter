@@ -1,0 +1,20 @@
+.col
+  - unless @uploads.any?
+    %h2 No upload found
+    %br/
+    %p Please import data to view information here
+    %a.btn.btn-info{href:upload_new_path}
+      Import now
+  - else
+    %table.table.table-hover.table-responsive
+      %thead
+        %tr
+          %th Name
+          %th Status
+          %th Date
+      %tbody
+        - @uploads.each do |upload|
+          %tr
+            %td= upload.original_filename
+            %td= upload.status.name
+            %td= upload.created_at.strftime('%Y %B %d')

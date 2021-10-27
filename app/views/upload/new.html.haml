@@ -1,0 +1,127 @@
+.col-12.hidden
+  %li#cleanElement.list-group-item.ui-state-default.hidden{role:'button'}
+    %input.control-field.hidden{type: 'text', name:'headers[]'}
+    %i.fas.fa-grip-horizontal.fa-fw
+.col-10.mx-auto
+  .card.border-0
+    %form{action:upload_import_path, method:'post', multipart: true, enctype: "multipart/form-data"}
+      = token_tag
+      .card-header.bg-white.border-0
+        %h3 Import contacts
+      .card-body
+        .row.mb-2
+          .col-6.mx-auto
+            %label.form-label{for:'importFile'} Import from file
+            %input#importFile.form-control{type:'file', required: true, accept:'.csv', name:'csv_file'}
+        #alertBlock.row.hidden.pt-2
+          .col-12
+            .alert.alert-warning
+        #secondStep.row.py-2.hidden
+          .col
+            %h4 Contact fields
+            %ul.list-group
+              - Upload::PRETTY_FIELDS.each do |field|
+                %li.list-group-item.d-flex.justify-content-between.align-items-center
+                  %p.my-0= field
+                  %i.far.fa-arrow-alt-circle-left
+          .col
+            %h4 File Headers
+            %ul#headersList.list-group.sortable
+      .card-footer.border-0.bg-white.text-end
+        %button#submitButton.btn.btn-info.disabled{type:'submit'}
+          Submit
+
+-# Javascript defined on view cause this is the only place will be used
+-# There is no performance diff onload
+:javascript
+  var fieldHeaders = ['name', 'email', 'phone', 'date_of_birth', 'address', 'credit_card'];
+  var fieldHeadersLength = fieldHeaders.length;
+
+  $("#importFile").change(function(event){
+    var cleanElement = $('#cleanElement');
+    var headersList = $('#headersList');
+    var reader = new FileReader();
+
+    // Make sure block is empty  and hidden 
+    // in case of file reselection
+    headersList.empty();
+    $('#secondStep').addClass('hidden');
+    $('#alertBlock').addClass('hidden');
+
+    // Behavior onload
+    reader.onload = function () {
+        // Parse result as CSV
+        var csv_arr = $.csv.toArrays(reader.result);
+
+        // Alert and abort if there are not enough columns
+        if(csv_arr[0].length<fieldHeadersLength){
+          $('#alertBlock').find('.alert').text('No enough columns in the selected document.');
+          $('#alertBlock').removeClass('hidden');
+          $('#submitButton').addClass('disabled');
+          return false;
+        }
+
+        var i = 0;
+
+        // Iterate only over the first line (asumed as header)
+        $.each(csv_arr[0], function(index, header){
+
+          // Clone base list element
+          var newElement = cleanElement.clone();
+
+          // Add data
+          var input = newElement.find('.control-field');
+          input.attr('value', header);
+          // Exclude extras
+          if(index<fieldHeadersLength){
+            // Asign header to field
+            input.attr('name', 'headers['+fieldHeaders[index]+']');
+          }else{
+            // Exclude unused
+            // Excluded wont be permitted
+            input.attr('name', 'excluded_header[]');
+          }
+          // List text
+          newElement.append(header);
+
+          // Remove control Attrs
+          newElement.removeAttr('id');
+          newElement.removeClass('hidden');
+
+          // Append to sortable list
+          headersList.append(newElement);
+
+          i++;
+        });
+      // Alert if there are too many columns
+      if (i > fieldHeadersLength){ 
+        $('#alertBlock').find('.alert').text('There are too many columns on the selected document, please align the columns to match the required fields, extra columns will be ignored.');
+        $('#alertBlock').removeClass('hidden'); 
+      }
+
+      // After file is parsed and new elements appended:
+      // Make it submitable
+      $('#submitButton').removeClass('disabled');
+      // Make block visible for edition
+      $('#secondStep').removeClass('hidden');
+    };
+
+    // Read file
+    reader.readAsBinaryString(event.target.files[0]);
+  });
+
+  $( ".sortable" ).sortable({
+    // On mouse release
+    stop: function(event, ui) {
+      $.map( $(this).find('li'), function(elem){
+        // Exclude extras
+        if($(elem).index()<fieldHeadersLength){
+          // Asign header to field
+          $(elem).find('.control-field').attr('name','headers['+ fieldHeaders[$(elem).index()] +']' );
+        }else{
+          // Excluded wont be permitted
+          $(elem).find('.control-field').attr('name','excluded_header[]' );
+        }
+      })
+    } // End stop
+  }); // End sortable

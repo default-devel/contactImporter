@@ -1,0 +1,29 @@
+.col
+  - unless @contacts.any?
+    %h2 No contacts found
+    %br/
+    %p Please import data to view information here
+    %a.btn.btn-info{href:upload_new_path}
+      Import now
+
+  - else
+    %table.table.table-responsive.table-hover.table-pagination
+      %thead
+        %tr
+          %th Name
+          %th email
+          %th phone
+          %th date_of_birth
+          %th address
+          %th franchise
+          %th credit_card
+      %tbody
+        - @contacts.each do |contact|
+          %tr
+            %td= contact.name
+            %td= contact.email
+            %td= contact.phone
+            %td= contact.date_of_birth.strftime('%Y %B %d')
+            %td= contact.address
+            %td= contact.franchise
+            %td= contact.last_digits.to_s

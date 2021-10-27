@@ -1,0 +1,2 @@
+module Contact::DefaultHelper
+end

@@ -1,0 +1,13 @@
+%nav.navbar.navbar-expand-lg.navbar-dark.bg-dark.mb-4
+  .container-fluid
+    %a.navbar-brand{href: root_path} Contacts
+    %button.navbar-toggler{type:'button', 'data-bs-toggle': 'collapse', 'data-bs-target': '#mainMenu'}
+      %span.navbar-toggle-icon
+    #mainMenu.collapse.navbar-collapse
+      %ul.navbar-nav.ms-auto
+        %li.nav-item.dropdown
+          %a#userDropdown.nav-link.dropdown-toggle{role:'button', 'data-bs-toggle': 'dropdown', 'aria-expanded': 'false'}
+            = current_user.email
+          %ul.dropdown-menu{'aria-labelledby': 'userDropdown'}
+            %li
+              %a.dropdown-item{href:destroy_user_session_path} Sign out
